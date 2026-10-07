@@ -3,199 +3,256 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>VST Real-time Traceability Platform</title>
+  <title>VST Traceability Web Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #0d1117; color: #e6edf3; font-size: 14px; line-height: 1.5; overflow: hidden; height: 100vh; width: 100vw; }
+    body { background-color: #0d1117; color: #e6edf3; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
     
-    /* Carousel Container */
-    .deck-container { width: 100%; height: calc(100vh - 60px); display: flex; transition: transform 0.3s ease-in-out; }
-    .slide { min-width: 100vw; height: 100%; padding: 16px; display: flex; flex-direction: column; overflow-y: auto; background-color: #0d1117; }
+    /* Portal Mode Selector Modal */
+    #mode-overlay { position: fixed; inset: 0; background: rgba(1, 4, 9, 0.92); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .mode-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .mode-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+    .mode-subtitle { font-size: 13px; color: #8b949e; margin-bottom: 24px; }
     
-    /* UI Design Components */
-    .badge { display: inline-block; padding: 4px 10px; background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56, 139, 253, 0.4); border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-    .slide-title { font-size: 20px; font-weight: 900; color: #ffffff; margin-bottom: 12px; border-left: 4px solid #238636; padding-left: 10px; }
-    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .card-title { font-size: 15px; font-weight: 700; color: #58a6ff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    .btn-mode { width: 100%; padding: 16px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 12px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+    .btn-mode:hover { transform: translateY(-2px); }
+    .btn-vst { background: rgba(35, 134, 54, 0.15); border-color: #238636; }
+    .btn-vst:hover { background: rgba(35, 134, 54, 0.3); }
+    .btn-client { background: rgba(88, 166, 255, 0.15); border-color: #388bfd; }
+    .btn-client:hover { background: rgba(88, 166, 255, 0.3); }
     
-    /* Grid & List Helpers */
-    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
-    @media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .mode-name { font-size: 16px; font-weight: 700; color: #fff; }
+    .mode-desc { font-size: 12px; color: #8b949e; margin-top: 2px; }
+
+    /* App Header */
+    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 900; font-size: 16px; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
+    .role-tag { font-size: 12px; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+    .tag-vst { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid #238636; }
+    .tag-client { background: rgba(88, 166, 255, 0.2); color: #58a6ff; border: 1px solid #388bfd; }
+    .btn-switch { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    /* Main Container */
+    main { flex: 1; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* UI Cards & Dropzone */
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+    .card-header { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     
-    .metric-number { font-size: 28px; font-weight: 900; color: #3fb950; }
-    .metric-label { font-size: 14px; color: #8b949e; font-weight: 600; }
-    
-    .list-item { font-size: 14px; padding: 6px 0; border-bottom: 1px solid #21262d; color: #c9d1d9; display: flex; justify-content: space-between; }
-    .list-item:last-child { border-bottom: none; }
-    .highlight { color: #3fb950; font-weight: 700; }
-    
-    /* Mockup Box */
-    .mockup-box { background: #010409; border: 1px dashed #30363d; border-radius: 8px; padding: 12px; text-align: center; margin-top: 8px; }
-    
-    /* Navigation Bar */
-    .nav-bar { height: 60px; background: #161b22; border-top: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; position: fixed; bottom: 0; width: 100vw; z-index: 100; }
-    .nav-btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .nav-btn:active { background: #30363d; }
-    .page-indicator { font-size: 14px; color: #8b949e; font-weight: 600; }
+    .dropzone { border: 2px dashed #30363d; border-radius: 8px; padding: 20px; text-align: center; background: #0d1117; cursor: pointer; transition: 0.2s; }
+    .dropzone:hover { border-color: #58a6ff; background: rgba(88, 166, 255, 0.05); }
+    .dropzone-title { font-size: 14px; font-weight: 700; color: #c9d1d9; }
+    .dropzone-desc { font-size: 12px; color: #8b949e; margin-top: 4px; }
+
+    /* Buttons & Search Inputs */
+    .search-box { display: flex; gap: 8px; margin-bottom: 16px; }
+    .search-input { flex: 1; padding: 12px 14px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #fff; font-size: 14px; }
+    .btn-action { padding: 12px 20px; background: #238636; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-blue { background: #388bfd; }
+
+    /* Data Display Table */
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #8b949e; }
+    .info-val { color: #e6edf3; font-weight: 600; text-align: right; }
+
+    .doc-btn { padding: 8px 14px; background: #21262d; border: 1px solid #30363d; color: #58a6ff; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 6px; margin-top: 8px; display: inline-block; }
+
+    /* Print Blind Invoice Mockup */
+    .invoice-preview { background: #fff; color: #000; padding: 20px; border-radius: 8px; font-family: sans-serif; font-size: 12px; margin-top: 16px; }
+    .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .invoice-table th, .invoice-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+    .invoice-table th { background: #f0f0f0; }
+    .blind-text { background: #000; color: #000; padding: 0 4px; border-radius: 2px; }
   </style>
 </head>
 <body>
 
-  <div class="deck-container" id="deck">
-    
-    <!-- Slide 1 -->
-    <section class="slide">
-      <span class="badge">VST SCM Platform</span>
-      <h1 class="slide-title">제조사 연동 실시간 역추적 시스템</h1>
+  <!-- Mode Selector Modal Overlay -->
+  <div id="mode-overlay">
+    <div class="mode-card">
+      <div class="mode-title">VST Traceability Platform</div>
+      <div class="mode-subtitle">시연할 접속 모드를 선택해 주세요</div>
       
-      <div class="card" style="border-left: 4px solid #3fb950;">
-        <div class="card-title">현장 추가 작업 Zero & 원클릭 역추적</div>
-        <p style="color: #8b949e; font-size: 14px;">수작업 입력, 낱개 라벨 인쇄, 수천 개 개별 스캔 작업을 완벽히 배제한 스마트 SCM 품질보증 플랫폼</p>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="metric-number">0초</div>
-          <div class="metric-label">현장 부가 작업 공수 (Zero Workload)</div>
+      <button class="btn-mode btn-vst" onclick="selectRole('VST')">
+        <div>
+          <div class="mode-name">🏭 VST 관리자 모드</div>
+          <div class="mode-desc">명세서 엑셀 업로드 / CO·CQ 서류 1:N 자동 결합</div>
         </div>
-        <div class="card">
-          <div class="metric-number">1회</div>
-          <div class="metric-label">엑셀 일괄 업로드 / CO·CQ PDF 매핑</div>
+        <span style="color:#3fb950; font-weight:bold;">진입 ➔</span>
+      </button>
+
+      <button class="btn-mode btn-client" onclick="selectRole('CLIENT')">
+        <div>
+          <div class="mode-name">🔍 고객사(삼성) 검수 모드</div>
+          <div class="mode-desc">1초 역추적 / 무작위 샘플링 검수 / CO·CQ 열람</div>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">핵심 제공 가치</div>
-        <div class="list-item"><span>제조사 원천 데이터 매핑</span><span class="highlight">NSK / Kinco 100% 연동</span></div>
-        <div class="list-item"><span>단가 보안 검수</span><span class="highlight">블라인드 거래명세서</span></div>
-        <div class="list-item"><span>고객사 검수 방식</span><span class="highlight">무작위 샘플링 검수 지원</span></div>
-      </div>
-    </section>
-
-    <!-- Slide 2 -->
-    <section class="slide">
-      <span class="badge">Workflow Architecture</span>
-      <h2 class="slide-title">3단계 자동화 프로세스</h2>
-
-      <div class="card">
-        <div class="card-title">Step 01. VST 대량 입력 (입고)</div>
-        <p style="font-size: 14px; color: #c9d1d9;">수천 개 명세 엑셀 1회 드래그 & 드롭 + CO/CQ PDF 1개 파일 결합 끝</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Step 02. 출고 & 블라인드 명세서</div>
-        <p style="font-size: 14px; color: #c9d1d9;">기존 명세서 인쇄 버튼 클릭 ➡️ 상단 통합 QR 1개 자동 탑재 (별도 라벨 없음)</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Step 03. 고객사 무작위 샘플 검수</div>
-        <p style="font-size: 14px; color: #c9d1d9;">명세서 QR 또는 무작위 샘플 1개 조회 ➡️ 전체 LOT 수량이 1초 만에 검증 완료</p>
-      </div>
-    </section>
-
-    <!-- Slide 3 -->
-    <section class="slide">
-      <span class="badge">VST Management UI</span>
-      <h2 class="slide-title">[VST] 대량 입고 & 서류 자동 매핑</h2>
-
-      <div class="card">
-        <div class="card-title">📂 엑셀 데이터 일괄 등록 (Bulk Upload)</div>
-        <div class="mockup-box">
-          <p style="color: #58a6ff; font-weight: 700;">[ 엑셀 명세서 (.xlsx) Drag & Drop ]</p>
-          <p style="font-size: 13px; color: #8b949e; margin-top: 4px;">수천 개 모델명/상세품번/LOT/시리얼 자동 파싱</p>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📄 증빙 서류 1:1 결합 (CO/CQ/CoA/수입필증)</div>
-        <div class="mockup-box">
-          <p style="color: #238636; font-weight: 700;">[ 원산지/품질/통관 PDF Drag & Drop ]</p>
-          <p style="font-size: 13px; color: #8b949e; margin-top: 4px;">1개 파일 등록 시 엑셀 내 전체 시리얼 1:N 자동 연결</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 4 -->
-    <section class="slide">
-      <span class="badge">Client Portal UI</span>
-      <h2 class="slide-title">[고객사] 1초 역추적 검색 화면</h2>
-
-      <div class="card">
-        <div class="card-title">🔍 최소 클릭 검수 포털</div>
-        <div class="list-item"><span>검색 모드</span><span class="highlight">QR 스캔 1회 or 시리얼 입력</span></div>
-        <div class="list-item"><span>품목 식별</span><span class="highlight">NSK 6204-2RS C3 (상세품번)</span></div>
-        <div class="list-item"><span>정품 증빙</span><span class="highlight">CO / CQ / 수입필증 원클릭 다운로드</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📸 입고 대표 사진 & 통관 이력</div>
-        <div class="mockup-box">
-          <p style="color: #e6edf3; font-weight: 600;">대표 박스 라벨 사진 (동일 LOT 수백 개 공통 매핑)</p>
-          <p style="font-size: 13px; color: #3fb950; margin-top: 4px;">✅ 제조사 출하 ➡️ 인천 통관 ➡️ VST 입고 완료</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Slide 5 -->
-    <section class="slide">
-      <span class="badge">Summary & Value</span>
-      <h2 class="slide-title">시스템 도입 핵심 요약</h2>
-
-      <div class="card">
-        <div class="card-title">1. 작업 부담 Zero</div>
-        <p style="font-size: 14px; color: #c9d1d9;">수작업 입력, 부품 낱개 스캔, 개별 라벨링 작업을 완전히 배제</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">2. 단가 보안 완벽 유지</div>
-        <p style="font-size: 14px; color: #c9d1d9;">현장용 명세서는 단가 마스킹 처리 / 구매팀용만 정산 금액 출력</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">3. 대량 데이터 1회 처리</div>
-        <p style="font-size: 14px; color: #c9d1d9;">수천 개 명세도 엑셀 1회 업로드로 DB 입력 및 서류 자동 매핑 완료</p>
-      </div>
-    </section>
-
+        <span style="color:#58a6ff; font-weight:bold;">진입 ➔</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Bottom Navigation -->
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="prevSlide()">이전</button>
-    <div class="page-indicator"><span id="current-page">1</span> / 5</div>
-    <button class="nav-btn" onclick="nextSlide()">다음</button>
-  </div>
+  <!-- App Header -->
+  <header>
+    <div class="logo">
+      <span>🛡️ VST SCM Portal</span>
+      <span id="role-badge" class="role-tag"></span>
+    </div>
+    <button class="btn-switch" onclick="openModeSelector()">🔄 모드 전환</button>
+  </header>
+
+  <main>
+    <!-- VST Admin Section -->
+    <section id="sec-vst" class="section">
+      <div class="card">
+        <div class="card-header">
+          <span>📂 1단계: 명세서 엑셀 대량 업로드 (Bulk Import)</span>
+          <span style="color:#3fb950; font-size:12px; font-weight:700;">작업 공수 Zero</span>
+        </div>
+        <div class="dropzone" onclick="triggerUpload('file-excel')">
+          <div class="dropzone-title">📄 거래명세서 엑셀 파일 (.xlsx) 클릭 or Drag & Drop</div>
+          <div class="dropzone-desc">수백~수천 개 모델명, 상세 품번(Suffix), LOT, 시리얼 번호 자동 수집</div>
+          <input type="file" id="file-excel" style="display:none;" onchange="showStatus('excel-status')" />
+        </div>
+        <div id="excel-status" style="margin-top:12px; font-size:13px; color:#3fb950; font-weight:600; display:none;">
+          ✅ 엑셀 내 1,250개 항목 수집 완료 (LOT: L-20261007-01 자동 할당)
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>📄 2단계: CO/CQ/수입필증 서류 1:N 결합</span>
+        </div>
+        <div class="dropzone" onclick="triggerUpload('file-doc')">
+          <div class="dropzone-title">📁 원산지/품질성적서/수입신고필증 PDF 일괄 등록</div>
+          <div class="dropzone-desc">1개 파일 업로드 시 엑셀 내 1,250개 전체 품목에 자동 매핑</div>
+          <input type="file" id="file-doc" style="display:none;" onchange="showStatus('doc-status')" />
+        </div>
+        <div id="doc-status" style="margin-top:12px; font-size:13px; color:#3fb950; font-weight:600; display:none;">
+          ✅ CO_NSK_20261007.pdf / CQ_NSK_20261007.pdf 매핑 완료
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>🖨️ 3단계: 단가 블라인드 거래명세서 출고</span>
+        </div>
+        <button class="btn-action btn-blue" style="width:100%;" onclick="toggleInvoice()">
+          현장용 단가 블라인드 명세서 인쇄 미리보기
+        </button>
+        
+        <div id="invoice-modal" style="display:none;">
+          <div class="invoice-preview">
+            <div class="invoice-header">
+              <div>
+                <h2 style="font-size:16px;">거래명세서 (현장 입고/검수용)</h2>
+                <p>공급자: VST (Vina Solutions Technology)</p>
+              </div>
+              <div style="text-align:right;">
+                <p><strong>[통합 QR 코드]</strong></p>
+                <div style="width:45px; height:45px; background:#000; color:#fff; font-size:8px; display:inline-flex; align-items:center; justify-content:center;">SCAN ME</div>
+              </div>
+            </div>
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>품명 및 상세규격</th>
+                  <th>수량</th>
+                  <th>단가</th>
+                  <th>공급가액</th>
+                  <th>LOT / Serial Range</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>NSK 6204-2RS C3</td>
+                  <td>500 ea</td>
+                  <td><span class="blind-text">*** BLIND ***</span></td>
+                  <td><span class="blind-text">*** BLIND ***</span></td>
+                  <td>L-20261007-01 (SN001~SN500)</td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="margin-top:10px; font-size:10px; color:#666;">※ 보안 유지를 위해 단가가 마스킹되었습니다. 상단 QR 스캔 시 CO/CQ 서류가 즉시 조회됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Client Section -->
+    <section id="sec-client" class="section">
+      <div class="card">
+        <div class="card-header">
+          <span>🔍 실시간 정품 & 이력 1초 역추적 (샘플링 검수)</span>
+        </div>
+        <div class="search-box">
+          <input type="text" id="client-search" class="search-input" value="SN-20261007-0045" placeholder="명세서 QR 스캔 또는 시리얼/LOT 번호 입력..." />
+          <button class="btn-action btn-blue" onclick="executeSearch()">검색</button>
+        </div>
+
+        <div id="search-result">
+          <div style="padding:12px; background:rgba(63, 185, 80, 0.15); border:1px solid #238636; border-radius:8px; margin-bottom:16px; text-align:center; color:#3fb950; font-weight:700;">
+            ✅ 제조사(NSK) 원천 정품 입증 완료
+          </div>
+
+          <div class="info-row"><span class="info-label">제조사 (Maker)</span><span class="info-val">NSK (Japan)</span></div>
+          <div class="info-row"><span class="info-label">대표 모델명</span><span class="info-val">6204</span></div>
+          <div class="info-row"><span class="info-label">상세 품번 (Suffix)</span><span class="info-val" style="color:#58a6ff;">6204-2RS C3 (고정밀 씰링 타입)</span></div>
+          <div class="info-row"><span class="info-label">조회 시리얼</span><span class="info-val">SN-20261007-0045</span></div>
+          <div class="info-row"><span class="info-label">동일 LOT 매핑 범위</span><span class="info-val">L-20261007-01 (SN001 ~ SN500)</span></div>
+          <div class="info-row"><span class="info-label">수입 통관일</span><span class="info-val">2026-10-05 (인천공항 통관)</span></div>
+
+          <div style="margin-top:16px;">
+            <p style="font-size:12px; font-weight:700; color:#8b949e; margin-bottom:4px;">1:N 매핑 원본 증빙 서류 (원클릭 열람):</p>
+            <button class="doc-btn" onclick="alert('📄 [CO 원산지 증명서]\n• 발급기관: Japan Chamber of Commerce\n• 품목: NSK Bearings 6204-2RS C3\n• Status: Official Validated')">📄 원산지증명서 (CO)</button>
+            <button class="doc-btn" onclick="alert('📄 [CQ 품질 성적서]\n• 검사 항목: 내경, 외경, 간극(C3), 진동 테스트 Pass\n• Status: Official Certified')">📄 품질성적서 (CQ)</button>
+            <button class="doc-btn" onclick="alert('📄 [수입신고필증]\n• 신고번호: 110-26-XXXXXX\n• 통관일: 2026-10-05')">📄 수입신고필증</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    let currentIdx = 0;
-    const totalSlides = 5;
-    const deck = document.getElementById('deck');
-    const pageIndicator = document.getElementById('current-page');
+    function selectRole(role) {
+      document.getElementById('mode-overlay').style.display = 'none';
+      document.getElementById('sec-vst').classList.remove('active');
+      document.getElementById('sec-client').classList.remove('active');
 
-    function updateSlide() {
-      deck.style.transform = `translateX(-${currentIdx * 100}vw)`;
-      pageIndicator.innerText = currentIdx + 1;
+      const badge = document.getElementById('role-badge');
+
+      if (role === 'VST') {
+        badge.innerText = 'VST 관리자';
+        badge.className = 'role-tag tag-vst';
+        document.getElementById('sec-vst').classList.add('active');
+      } else {
+        badge.innerText = '삼성전자 SEVT 검수팀';
+        badge.className = 'role-tag tag-client';
+        document.getElementById('sec-client').classList.add('active');
+      }
     }
 
-    function nextSlide() {
-      if (currentIdx < totalSlides - 1) { currentIdx++; updateSlide(); }
+    function openModeSelector() {
+      document.getElementById('mode-overlay').style.display = 'flex';
     }
 
-    function prevSlide() {
-      if (currentIdx > 0) { currentIdx--; updateSlide(); }
+    function triggerUpload(id) { document.getElementById(id).click(); }
+    function showStatus(id) { document.getElementById(id).style.display = 'block'; }
+    
+    function toggleInvoice() {
+      const el = document.getElementById('invoice-modal');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Touch Swipe Support for Mobile
-    let startX = 0;
-    document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
-    document.addEventListener('touchend', e => {
-      let diffX = startX - e.changedTouches[0].clientX;
-      if (diffX > 50) nextSlide();
-      else if (diffX < -50) prevSlide();
-    });
+    function executeSearch() {
+      document.getElementById('search-result').style.display = 'block';
+    }
   </script>
 </body>
 </html>
