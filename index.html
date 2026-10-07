@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VST Real-time Traceability Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #0d1117; color: #e6edf3; font-size: 14px; line-height: 1.5; overflow: hidden; height: 100vh; width: 100vw; }
+    
+    /* Carousel Container */
+    .deck-container { width: 100%; height: calc(100vh - 60px); display: flex; transition: transform 0.3s ease-in-out; }
+    .slide { min-width: 100vw; height: 100%; padding: 16px; display: flex; flex-direction: column; overflow-y: auto; background-color: #0d1117; }
+    
+    /* UI Design Components */
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56, 139, 253, 0.4); border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .slide-title { font-size: 20px; font-weight: 900; color: #ffffff; margin-bottom: 12px; border-left: 4px solid #238636; padding-left: 10px; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .card-title { font-size: 15px; font-weight: 700; color: #58a6ff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+    
+    /* Grid & List Helpers */
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    
+    .metric-number { font-size: 28px; font-weight: 900; color: #3fb950; }
+    .metric-label { font-size: 14px; color: #8b949e; font-weight: 600; }
+    
+    .list-item { font-size: 14px; padding: 6px 0; border-bottom: 1px solid #21262d; color: #c9d1d9; display: flex; justify-content: space-between; }
+    .list-item:last-child { border-bottom: none; }
+    .highlight { color: #3fb950; font-weight: 700; }
+    
+    /* Mockup Box */
+    .mockup-box { background: #010409; border: 1px dashed #30363d; border-radius: 8px; padding: 12px; text-align: center; margin-top: 8px; }
+    
+    /* Navigation Bar */
+    .nav-bar { height: 60px; background: #161b22; border-top: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; position: fixed; bottom: 0; width: 100vw; z-index: 100; }
+    .nav-btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .nav-btn:active { background: #30363d; }
+    .page-indicator { font-size: 14px; color: #8b949e; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container" id="deck">
+    
+    <!-- Slide 1 -->
+    <section class="slide">
+      <span class="badge">VST SCM Platform</span>
+      <h1 class="slide-title">제조사 연동 실시간 역추적 시스템</h1>
+      
+      <div class="card" style="border-left: 4px solid #3fb950;">
+        <div class="card-title">현장 추가 작업 Zero & 원클릭 역추적</div>
+        <p style="color: #8b949e; font-size: 14px;">수작업 입력, 낱개 라벨 인쇄, 수천 개 개별 스캔 작업을 완벽히 배제한 스마트 SCM 품질보증 플랫폼</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="metric-number">0초</div>
+          <div class="metric-label">현장 부가 작업 공수 (Zero Workload)</div>
+        </div>
+        <div class="card">
+          <div class="metric-number">1회</div>
+          <div class="metric-label">엑셀 일괄 업로드 / CO·CQ PDF 매핑</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">핵심 제공 가치</div>
+        <div class="list-item"><span>제조사 원천 데이터 매핑</span><span class="highlight">NSK / Kinco 100% 연동</span></div>
+        <div class="list-item"><span>단가 보안 검수</span><span class="highlight">블라인드 거래명세서</span></div>
+        <div class="list-item"><span>고객사 검수 방식</span><span class="highlight">무작위 샘플링 검수 지원</span></div>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide">
+      <span class="badge">Workflow Architecture</span>
+      <h2 class="slide-title">3단계 자동화 프로세스</h2>
+
+      <div class="card">
+        <div class="card-title">Step 01. VST 대량 입력 (입고)</div>
+        <p style="font-size: 14px; color: #c9d1d9;">수천 개 명세 엑셀 1회 드래그 & 드롭 + CO/CQ PDF 1개 파일 결합 끝</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 02. 출고 & 블라인드 명세서</div>
+        <p style="font-size: 14px; color: #c9d1d9;">기존 명세서 인쇄 버튼 클릭 ➡️ 상단 통합 QR 1개 자동 탑재 (별도 라벨 없음)</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 03. 고객사 무작위 샘플 검수</div>
+        <p style="font-size: 14px; color: #c9d1d9;">명세서 QR 또는 무작위 샘플 1개 조회 ➡️ 전체 LOT 수량이 1초 만에 검증 완료</p>
+      </div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide">
+      <span class="badge">VST Management UI</span>
+      <h2 class="slide-title">[VST] 대량 입고 & 서류 자동 매핑</h2>
+
+      <div class="card">
+        <div class="card-title">📂 엑셀 데이터 일괄 등록 (Bulk Upload)</div>
+        <div class="mockup-box">
+          <p style="color: #58a6ff; font-weight: 700;">[ 엑셀 명세서 (.xlsx) Drag & Drop ]</p>
+          <p style="font-size: 13px; color: #8b949e; margin-top: 4px;">수천 개 모델명/상세품번/LOT/시리얼 자동 파싱</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📄 증빙 서류 1:1 결합 (CO/CQ/CoA/수입필증)</div>
+        <div class="mockup-box">
+          <p style="color: #238636; font-weight: 700;">[ 원산지/품질/통관 PDF Drag & Drop ]</p>
+          <p style="font-size: 13px; color: #8b949e; margin-top: 4px;">1개 파일 등록 시 엑셀 내 전체 시리얼 1:N 자동 연결</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4 -->
+    <section class="slide">
+      <span class="badge">Client Portal UI</span>
+      <h2 class="slide-title">[고객사] 1초 역추적 검색 화면</h2>
+
+      <div class="card">
+        <div class="card-title">🔍 최소 클릭 검수 포털</div>
+        <div class="list-item"><span>검색 모드</span><span class="highlight">QR 스캔 1회 or 시리얼 입력</span></div>
+        <div class="list-item"><span>품목 식별</span><span class="highlight">NSK 6204-2RS C3 (상세품번)</span></div>
+        <div class="list-item"><span>정품 증빙</span><span class="highlight">CO / CQ / 수입필증 원클릭 다운로드</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📸 입고 대표 사진 & 통관 이력</div>
+        <div class="mockup-box">
+          <p style="color: #e6edf3; font-weight: 600;">대표 박스 라벨 사진 (동일 LOT 수백 개 공통 매핑)</p>
+          <p style="font-size: 13px; color: #3fb950; margin-top: 4px;">✅ 제조사 출하 ➡️ 인천 통관 ➡️ VST 입고 완료</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5 -->
+    <section class="slide">
+      <span class="badge">Summary & Value</span>
+      <h2 class="slide-title">시스템 도입 핵심 요약</h2>
+
+      <div class="card">
+        <div class="card-title">1. 작업 부담 Zero</div>
+        <p style="font-size: 14px; color: #c9d1d9;">수작업 입력, 부품 낱개 스캔, 개별 라벨링 작업을 완전히 배제</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. 단가 보안 완벽 유지</div>
+        <p style="font-size: 14px; color: #c9d1d9;">현장용 명세서는 단가 마스킹 처리 / 구매팀용만 정산 금액 출력</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. 대량 데이터 1회 처리</div>
+        <p style="font-size: 14px; color: #c9d1d9;">수천 개 명세도 엑셀 1회 업로드로 DB 입력 및 서류 자동 매핑 완료</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="prevSlide()">이전</button>
+    <div class="page-indicator"><span id="current-page">1</span> / 5</div>
+    <button class="nav-btn" onclick="nextSlide()">다음</button>
+  </div>
+
+  <script>
+    let currentIdx = 0;
+    const totalSlides = 5;
+    const deck = document.getElementById('deck');
+    const pageIndicator = document.getElementById('current-page');
+
+    function updateSlide() {
+      deck.style.transform = `translateX(-${currentIdx * 100}vw)`;
+      pageIndicator.innerText = currentIdx + 1;
+    }
+
+    function nextSlide() {
+      if (currentIdx < totalSlides - 1) { currentIdx++; updateSlide(); }
+    }
+
+    function prevSlide() {
+      if (currentIdx > 0) { currentIdx--; updateSlide(); }
+    }
+
+    // Touch Swipe Support for Mobile
+    let startX = 0;
+    document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    document.addEventListener('touchend', e => {
+      let diffX = startX - e.changedTouches[0].clientX;
+      if (diffX > 50) nextSlide();
+      else if (diffX < -50) prevSlide();
+    });
+  </script>
+</body>
+</html>
