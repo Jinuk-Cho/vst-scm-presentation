@@ -6,70 +6,97 @@
   <title>VST Traceability Web Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: #0d1117; color: #e6edf3; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
     
-    /* Portal Mode Selector Modal */
-    #mode-overlay { position: fixed; inset: 0; background: rgba(1, 4, 9, 0.92); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .mode-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 28px; width: 100%; max-width: 440px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .mode-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
-    .mode-subtitle { font-size: 13px; color: #8b949e; margin-bottom: 24px; }
+    /* Mode Selector Modal Overlay */
+    #mode-overlay { position: fixed; inset: 0; background: rgba(1, 4, 9, 0.94); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .mode-card { background: #161b22; border: 2px solid #30363d; border-radius: 18px; padding: 32px; width: 100%; max-width: 480px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+    .mode-title { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+    .mode-subtitle { font-size: 14px; color: #8b949e; margin-bottom: 28px; font-weight: 500; }
     
-    .btn-mode { width: 100%; padding: 16px; border-radius: 10px; border: 1px solid #30363d; margin-bottom: 12px; cursor: pointer; text-align: left; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
-    .btn-mode:hover { transform: translateY(-2px); }
+    .btn-mode { width: 100%; padding: 18px 20px; border-radius: 12px; border: 2px solid #30363d; margin-bottom: 14px; cursor: pointer; text-align: left; transition: all 0.2s ease-in-out; display: flex; align-items: center; justify-content: space-between; }
+    .btn-mode:hover { transform: translateY(-3px); }
     .btn-vst { background: rgba(35, 134, 54, 0.15); border-color: #238636; }
-    .btn-vst:hover { background: rgba(35, 134, 54, 0.3); }
+    .btn-vst:hover { background: rgba(35, 134, 54, 0.3); border-color: #3fb950; }
     .btn-client { background: rgba(88, 166, 255, 0.15); border-color: #388bfd; }
-    .btn-client:hover { background: rgba(88, 166, 255, 0.3); }
+    .btn-client:hover { background: rgba(88, 166, 255, 0.3); border-color: #58a6ff; }
     
-    .mode-name { font-size: 16px; font-weight: 700; color: #fff; }
-    .mode-desc { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .mode-name { font-size: 17px; font-weight: 800; color: #fff; }
+    .mode-desc { font-size: 13px; color: #8b949e; margin-top: 4px; font-weight: 500; }
 
     /* App Header */
-    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-weight: 900; font-size: 16px; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
-    .role-tag { font-size: 12px; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
-    .tag-vst { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid #238636; }
-    .tag-client { background: rgba(88, 166, 255, 0.2); color: #58a6ff; border: 1px solid #388bfd; }
-    .btn-switch { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    header { background: #161b22; border-bottom: 1px solid #30363d; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 900; font-size: 18px; color: #58a6ff; display: flex; align-items: center; gap: 10px; }
+    .role-tag { font-size: 13px; padding: 4px 12px; border-radius: 20px; font-weight: 800; }
+    .tag-vst { background: rgba(35, 134, 54, 0.25); color: #3fb950; border: 1px solid #238636; }
+    .tag-client { background: rgba(88, 166, 255, 0.25); color: #58a6ff; border: 1px solid #388bfd; }
+    .btn-switch { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-switch:hover { background: #30363d; color: #fff; }
 
     /* Main Container */
-    main { flex: 1; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+    main { flex: 1; padding: 24px; max-width: 860px; margin: 0 auto; width: 100%; }
     .section { display: none; }
     .section.active { display: block; }
 
     /* UI Cards & Dropzone */
-    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
-    .card-header { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 14px; padding: 22px; margin-bottom: 20px; }
+    .card-header { font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
     
-    .dropzone { border: 2px dashed #30363d; border-radius: 8px; padding: 20px; text-align: center; background: #0d1117; cursor: pointer; transition: 0.2s; }
+    .dropzone { border: 2px dashed #30363d; border-radius: 10px; padding: 28px; text-align: center; background: #0d1117; cursor: pointer; transition: 0.2s; }
     .dropzone:hover { border-color: #58a6ff; background: rgba(88, 166, 255, 0.05); }
-    .dropzone-title { font-size: 14px; font-weight: 700; color: #c9d1d9; }
-    .dropzone-desc { font-size: 12px; color: #8b949e; margin-top: 4px; }
+    .dropzone-title { font-size: 15px; font-weight: 800; color: #c9d1d9; }
+    .dropzone-desc { font-size: 13px; color: #8b949e; margin-top: 6px; font-weight: 500; }
 
     /* Buttons & Search Inputs */
-    .search-box { display: flex; gap: 8px; margin-bottom: 16px; }
-    .search-input { flex: 1; padding: 12px 14px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #fff; font-size: 14px; }
-    .btn-action { padding: 12px 20px; background: #238636; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    .btn-blue { background: #388bfd; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 18px; }
+    .search-input { flex: 1; padding: 14px 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 600; }
+    .search-input:focus { outline: none; border-color: #388bfd; }
+    .btn-action { padding: 14px 22px; background: #238636; color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; }
+    .btn-blue { background: #238636; }
+    .btn-blue:hover { background: #2ea043; }
 
     /* Data Display Table */
-    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #21262d; font-size: 13px; }
+    .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #21262d; font-size: 14px; }
     .info-row:last-child { border-bottom: none; }
-    .info-label { color: #8b949e; }
-    .info-val { color: #e6edf3; font-weight: 600; text-align: right; }
+    .info-label { color: #8b949e; font-weight: 600; }
+    .info-val { color: #e6edf3; font-weight: 800; text-align: right; }
 
-    .doc-btn { padding: 8px 14px; background: #21262d; border: 1px solid #30363d; color: #58a6ff; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 6px; margin-top: 8px; display: inline-block; }
+    .doc-btn { padding: 10px 16px; background: #21262d; border: 1px solid #30363d; color: #58a6ff; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-right: 8px; margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .doc-btn:hover { background: #30363d; color: #79c0ff; }
 
     /* Print Blind Invoice Mockup */
-    .invoice-preview { background: #fff; color: #000; padding: 20px; border-radius: 8px; font-family: sans-serif; font-size: 12px; margin-top: 16px; }
-    .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .invoice-table th, .invoice-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-    .invoice-table th { background: #f0f0f0; }
-    .blind-text { background: #000; color: #000; padding: 0 4px; border-radius: 2px; }
+    .invoice-preview { background: #ffffff; color: #0f172a; padding: 24px; border-radius: 10px; font-size: 13px; margin-top: 20px; border: 2px solid #cbd5e1; }
+    .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 12px; }
+    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .invoice-table th, .invoice-table td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+    .invoice-table th { background: #f1f5f9; font-weight: 800; color: #0f172a; }
+    .blind-text { background: #0f172a; color: #0f172a; padding: 2px 6px; border-radius: 3px; font-weight: 800; }
+
+    /* Universal Modal Viewer for Realistic PDFs */
+    .doc-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .doc-modal-body { background: #ffffff; color: #000000; width: 100%; max-width: 780px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; font-family: 'Times New Roman', serif; }
+    .doc-close-btn { position: sticky; top: 0; float: right; background: #0f172a; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 800; font-size: 13px; cursor: pointer; z-index: 10; font-family: 'Noto Sans KR', sans-serif; }
+    
+    /* Realistic Certificate Styles */
+    .cert-border { border: 3px double #1e3a8a; padding: 24px; border-radius: 4px; }
+    .cert-header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 16px; margin-bottom: 20px; }
+    .cert-title { font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #1e3a8a; text-transform: uppercase; }
+    .cert-subtitle { font-size: 13px; color: #475569; margin-top: 4px; font-weight: 600; font-family: sans-serif; }
+    .cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 12px; font-family: sans-serif; }
+    .cert-box { border: 1px solid #cbd5e1; padding: 10px; border-radius: 4px; background: #f8fafc; }
+    .cert-label { font-weight: 800; color: #1e293b; font-size: 11px; text-transform: uppercase; }
+    .cert-val { color: #0f172a; font-weight: 700; margin-top: 4px; font-size: 13px; }
+    .cert-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; font-family: sans-serif; }
+    .cert-table th, .cert-table td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+    .cert-table th { background: #e2e8f0; font-weight: 800; color: #0f172a; }
+    
+    .stamp-seal { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 32px; font-family: sans-serif; }
+    .official-seal { width: 110px; height: 110px; border: 3px dashed #b91c1c; border-radius: 50%; color: #b91c1c; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 10px; font-weight: 900; transform: rotate(-8deg); opacity: 0.88; }
   </style>
 </head>
 <body>
@@ -77,15 +104,15 @@
   <!-- Mode Selector Modal Overlay -->
   <div id="mode-overlay">
     <div class="mode-card">
-      <div class="mode-title">VST Traceability Platform</div>
-      <div class="mode-subtitle">시연할 접속 모드를 선택해 주세요</div>
+      <div class="mode-title"><i class="fa-solid fa-shield-halved" style="color:#58a6ff;"></i> VST Traceability Platform</div>
+      <div class="mode-subtitle">시연할 접속 포털 모드를 선택하세요</div>
       
       <button class="btn-mode btn-vst" onclick="selectRole('VST')">
         <div>
           <div class="mode-name">🏭 VST 관리자 모드</div>
           <div class="mode-desc">명세서 엑셀 업로드 / CO·CQ 서류 1:N 자동 결합</div>
         </div>
-        <span style="color:#3fb950; font-weight:bold;">진입 ➔</span>
+        <span style="color:#3fb950; font-weight:900; font-size:18px;">➔</span>
       </button>
 
       <button class="btn-mode btn-client" onclick="selectRole('CLIENT')">
@@ -93,7 +120,7 @@
           <div class="mode-name">🔍 고객사(삼성) 검수 모드</div>
           <div class="mode-desc">1초 역추적 / 무작위 샘플링 검수 / CO·CQ 열람</div>
         </div>
-        <span style="color:#58a6ff; font-weight:bold;">진입 ➔</span>
+        <span style="color:#58a6ff; font-weight:900; font-size:18px;">➔</span>
       </button>
     </div>
   </div>
@@ -101,10 +128,11 @@
   <!-- App Header -->
   <header>
     <div class="logo">
-      <span>🛡️ VST SCM Portal</span>
+      <i class="fa-solid fa-boxes-packing" style="color:#388bfd;"></i>
+      <span>VST SCM Portal</span>
       <span id="role-badge" class="role-tag"></span>
     </div>
-    <button class="btn-switch" onclick="openModeSelector()">🔄 모드 전환</button>
+    <button class="btn-switch" onclick="openModeSelector()"><i class="fa-solid fa-rotate"></i> 모드 전환</button>
   </header>
 
   <main>
@@ -112,51 +140,55 @@
     <section id="sec-vst" class="section">
       <div class="card">
         <div class="card-header">
-          <span>📂 1단계: 명세서 엑셀 대량 업로드 (Bulk Import)</span>
-          <span style="color:#3fb950; font-size:12px; font-weight:700;">작업 공수 Zero</span>
+          <span><i class="fa-solid fa-file-excel" style="color:#3fb950; margin-right:8px;"></i> 1단계: 명세서 엑셀 대량 업로드 (Bulk Import)</span>
+          <span style="color:#3fb950; font-size:13px; font-weight:800; background:rgba(63,185,80,0.15); padding:4px 10px; border-radius:6px;">현장 공수 Zero</span>
         </div>
         <div class="dropzone" onclick="triggerUpload('file-excel')">
-          <div class="dropzone-title">📄 거래명세서 엑셀 파일 (.xlsx) 클릭 or Drag & Drop</div>
-          <div class="dropzone-desc">수백~수천 개 모델명, 상세 품번(Suffix), LOT, 시리얼 번호 자동 수집</div>
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px; color:#58a6ff; margin-bottom:10px;"></i>
+          <div class="dropzone-title">거래명세서 엑셀 파일 (.xlsx) 클릭 또는 Drag & Drop</div>
+          <div class="dropzone-desc">NSK, Kinco, THK 등 수백~수천 개 모델명, 상세 품번(Suffix), LOT, 시리얼 번호 자동 수집</div>
           <input type="file" id="file-excel" style="display:none;" onchange="showStatus('excel-status')" />
         </div>
-        <div id="excel-status" style="margin-top:12px; font-size:13px; color:#3fb950; font-weight:600; display:none;">
-          ✅ 엑셀 내 1,250개 항목 수집 완료 (LOT: L-20261007-01 자동 할당)
+        <div id="excel-status" style="margin-top:14px; font-size:14px; color:#3fb950; font-weight:700; display:none; background:rgba(63,185,80,0.1); padding:10px 14px; border-radius:8px;">
+          <i class="fa-solid fa-circle-check"></i> 엑셀 내 1,250개 품목 데이터 파싱 완료 (LOT: L-20261007-01 자동 할당)
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <span>📄 2단계: CO/CQ/수입필증 서류 1:N 결합</span>
+          <span><i class="fa-solid fa-file-pdf" style="color:#f87171; margin-right:8px;"></i> 2단계: CO/CQ/수입필증 서류 1:N 자동 결합</span>
         </div>
         <div class="dropzone" onclick="triggerUpload('file-doc')">
-          <div class="dropzone-title">📁 원산지/품질성적서/수입신고필증 PDF 일괄 등록</div>
+          <i class="fa-solid fa-file-contract" style="font-size:32px; color:#3fb950; margin-bottom:10px;"></i>
+          <div class="dropzone-title">원산지 / 품질성적서 / 수입신고필증 PDF 일괄 등록</div>
           <div class="dropzone-desc">1개 파일 업로드 시 엑셀 내 1,250개 전체 품목에 자동 매핑</div>
           <input type="file" id="file-doc" style="display:none;" onchange="showStatus('doc-status')" />
         </div>
-        <div id="doc-status" style="margin-top:12px; font-size:13px; color:#3fb950; font-weight:600; display:none;">
-          ✅ CO_NSK_20261007.pdf / CQ_NSK_20261007.pdf 매핑 완료
+        <div id="doc-status" style="margin-top:14px; font-size:14px; color:#3fb950; font-weight:700; display:none; background:rgba(63,185,80,0.1); padding:10px 14px; border-radius:8px;">
+          <i class="fa-solid fa-circle-check"></i> CO_NSK_20261007.pdf / CQ_NSK_20261007.pdf 매핑 완료
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <span>🖨️ 3단계: 단가 블라인드 거래명세서 출고</span>
+          <span><i class="fa-solid fa-print" style="color:#388bfd; margin-right:8px;"></i> 3단계: 단가 블라인드 거래명세서 출고</span>
         </div>
         <button class="btn-action btn-blue" style="width:100%;" onclick="toggleInvoice()">
-          현장용 단가 블라인드 명세서 인쇄 미리보기
+          <i class="fa-solid fa-eye"></i> 현장용 단가 블라인드 명세서 인쇄 미리보기
         </button>
         
         <div id="invoice-modal" style="display:none;">
           <div class="invoice-preview">
             <div class="invoice-header">
               <div>
-                <h2 style="font-size:16px;">거래명세서 (현장 입고/검수용)</h2>
-                <p>공급자: VST (Vina Solutions Technology)</p>
+                <h2 style="font-size:18px; font-weight:900;">거 래 명 세 서 (현장 입고/검수용)</h2>
+                <p style="margin-top:4px; font-weight:600; color:#475569;">공급자: VST (Vina Solutions Technology)</p>
               </div>
               <div style="text-align:right;">
-                <p><strong>[통합 QR 코드]</strong></p>
-                <div style="width:45px; height:45px; background:#000; color:#fff; font-size:8px; display:inline-flex; align-items:center; justify-content:center;">SCAN ME</div>
+                <p style="font-size:12px; font-weight:800; margin-bottom:4px;">[통합 QR 코드]</p>
+                <div style="width:52px; height:52px; background:#0f172a; color:#fff; font-size:9px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; border-radius:4px;">
+                  <i class="fa-solid fa-qrcode" style="font-size:36px;"></i>
+                </div>
               </div>
             </div>
             <table class="invoice-table">
@@ -171,15 +203,15 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>NSK 6204-2RS C3</td>
-                  <td>500 ea</td>
+                  <td style="font-weight:800;">NSK 6204-2RS C3</td>
+                  <td style="font-weight:700;">500 ea</td>
                   <td><span class="blind-text">*** BLIND ***</span></td>
                   <td><span class="blind-text">*** BLIND ***</span></td>
-                  <td>L-20261007-01 (SN001~SN500)</td>
+                  <td style="font-weight:700;">L-20261007-01 (SN001~SN500)</td>
                 </tr>
               </tbody>
             </table>
-            <p style="margin-top:10px; font-size:10px; color:#666;">※ 보안 유지를 위해 단가가 마스킹되었습니다. 상단 QR 스캔 시 CO/CQ 서류가 즉시 조회됩니다.</p>
+            <p style="margin-top:12px; font-size:11px; color:#64748b; font-weight:600;">※ 현장 단가 보안 유지를 위해 금액 정보가 마스킹 처리되었습니다. 명세서 상단 QR 스캔 시 원본 증빙 서류가 즉시 출력됩니다.</p>
           </div>
         </div>
       </div>
@@ -189,35 +221,174 @@
     <section id="sec-client" class="section">
       <div class="card">
         <div class="card-header">
-          <span>🔍 실시간 정품 & 이력 1초 역추적 (샘플링 검수)</span>
+          <span><i class="fa-solid fa-magnifying-glass" style="color:#388bfd; margin-right:8px;"></i> 실시간 정품 & 이력 1초 역추적 (무작위 샘플링 검수)</span>
         </div>
         <div class="search-box">
           <input type="text" id="client-search" class="search-input" value="SN-20261007-0045" placeholder="명세서 QR 스캔 또는 시리얼/LOT 번호 입력..." />
-          <button class="btn-action btn-blue" onclick="executeSearch()">검색</button>
+          <button class="btn-action btn-blue" onclick="executeSearch()"><i class="fa-solid fa-search"></i> 검수 조회</button>
         </div>
 
         <div id="search-result">
-          <div style="padding:12px; background:rgba(63, 185, 80, 0.15); border:1px solid #238636; border-radius:8px; margin-bottom:16px; text-align:center; color:#3fb950; font-weight:700;">
-            ✅ 제조사(NSK) 원천 정품 입증 완료
+          <div style="padding:14px; background:rgba(63, 185, 80, 0.15); border:2px solid #238636; border-radius:10px; margin-bottom:18px; text-align:center; color:#3fb950; font-weight:800; font-size:16px;">
+            <i class="fa-solid fa-shield-check"></i> 제조사(NSK) 원천 정품 입증 완료
           </div>
 
-          <div class="info-row"><span class="info-label">제조사 (Maker)</span><span class="info-val">NSK (Japan)</span></div>
+          <div class="info-row"><span class="info-label">제조사 (Maker)</span><span class="info-val">NSK Ltd. (Japan)</span></div>
           <div class="info-row"><span class="info-label">대표 모델명</span><span class="info-val">6204</span></div>
           <div class="info-row"><span class="info-label">상세 품번 (Suffix)</span><span class="info-val" style="color:#58a6ff;">6204-2RS C3 (고정밀 씰링 타입)</span></div>
           <div class="info-row"><span class="info-label">조회 시리얼</span><span class="info-val">SN-20261007-0045</span></div>
           <div class="info-row"><span class="info-label">동일 LOT 매핑 범위</span><span class="info-val">L-20261007-01 (SN001 ~ SN500)</span></div>
-          <div class="info-row"><span class="info-label">수입 통관일</span><span class="info-val">2026-10-05 (인천공항 통관)</span></div>
+          <div class="info-row"><span class="info-label">수입 통관일</span><span class="info-val">2026-10-05 (인천공항 통관 완료)</span></div>
 
-          <div style="margin-top:16px;">
-            <p style="font-size:12px; font-weight:700; color:#8b949e; margin-bottom:4px;">1:N 매핑 원본 증빙 서류 (원클릭 열람):</p>
-            <button class="doc-btn" onclick="alert('📄 [CO 원산지 증명서]\n• 발급기관: Japan Chamber of Commerce\n• 품목: NSK Bearings 6204-2RS C3\n• Status: Official Validated')">📄 원산지증명서 (CO)</button>
-            <button class="doc-btn" onclick="alert('📄 [CQ 품질 성적서]\n• 검사 항목: 내경, 외경, 간극(C3), 진동 테스트 Pass\n• Status: Official Certified')">📄 품질성적서 (CQ)</button>
-            <button class="doc-btn" onclick="alert('📄 [수입신고필증]\n• 신고번호: 110-26-XXXXXX\n• 통관일: 2026-10-05')">📄 수입신고필증</button>
+          <div style="margin-top:20px;">
+            <p style="font-size:13px; font-weight:800; color:#8b949e; margin-bottom:8px;">1:N 자동 결합 증빙 서류 (클릭 시 원본 열람):</p>
+            <button class="doc-btn" onclick="openDocModal('co')"><i class="fa-solid fa-certificate" style="color:#3fb950;"></i> 원산지증명서 (CO)</button>
+            <button class="doc-btn" onclick="openDocModal('cq')"><i class="fa-solid fa-file-waveform" style="color:#388bfd;"></i> 품질성적서 (CQ)</button>
+            <button class="doc-btn" onclick="alertDocCustoms()"><i class="fa-solid fa-landmark" style="color:#a855f7;"></i> 수입신고필증</button>
           </div>
         </div>
       </div>
     </section>
   </main>
+
+  <!-- Document Viewer Modal 1: Certificate of Origin (CO) -->
+  <div id="modal-co" class="doc-modal-overlay">
+    <div class="doc-modal-body">
+      <button class="doc-close-btn" onclick="closeDocModal('co')">닫기 ✖</button>
+      <div class="cert-border">
+        <div class="cert-header">
+          <div style="font-size:12px; font-weight:800; color:#475569; letter-spacing:1px;">JAPAN CHAMBER OF COMMERCE AND INDUSTRY</div>
+          <div class="cert-title" style="margin-top:6px;">CERTIFICATE OF ORIGIN</div>
+          <div class="cert-subtitle">FORM J / ORIGINAL OFFICIAL DOCUMENT</div>
+        </div>
+
+        <div class="cert-grid">
+          <div class="cert-box">
+            <div class="cert-label">1. Exporter / Shipper</div>
+            <div class="cert-val">NSK Ltd. Tokyo Main Office<br>1-6-3 Ohsaki, Shinagawa-ku, Tokyo, Japan</div>
+          </div>
+          <div class="cert-box">
+            <div class="cert-label">Certificate No. &amp; Date</div>
+            <div class="cert-val" style="color:#1e3a8a;">JCCI-CO-20261001-884<br>Date: Oct 01, 2026</div>
+          </div>
+          <div class="cert-box">
+            <div class="cert-label">2. Consignee / Importer</div>
+            <div class="cert-val">Vina Solutions Technology (VST)<br>Incheon Logistics Center, South Korea</div>
+          </div>
+          <div class="cert-box">
+            <div class="cert-label">3. Means of Transport</div>
+            <div class="cert-val">By Air Freight (Asiana Cargo)<br>From: Haneda (HND) To: Incheon (ICN)</div>
+          </div>
+        </div>
+
+        <table class="cert-table">
+          <thead>
+            <tr>
+              <th>Marks &amp; Numbers</th>
+              <th>Description of Goods</th>
+              <th>Quantity</th>
+              <th>Country of Origin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;">VST-NSK-2026<br>LOT: L-20261007-01</td>
+              <td style="text-align:left; font-weight:700;">NSK Precision Ball Bearings<br>Model: 6204-2RS C3 (Sealed Type)</td>
+              <td style="font-weight:700;">1,250 PCS</td>
+              <td style="font-weight:900; color:#1e3a8a;">JAPAN</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stamp-seal">
+          <div>
+            <div style="font-size:11px; font-weight:800; color:#475569;">ISSUING AUTHORITY CERTIFICATION</div>
+            <div style="font-size:12px; font-weight:700; margin-top:4px;">Tokyo Chamber of Commerce and Industry</div>
+            <div style="font-size:10px; color:#64748b; margin-top:2px;">Digitally Verified via JCCI Blockchain Ledger</div>
+          </div>
+          <div class="official-seal">
+            <span>TOKYO CHAMBER</span>
+            <span style="font-size:14px; margin:2px 0;">★ OFFICIAL ★</span>
+            <span>OF COMMERCE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Viewer Modal 2: Inspection Certificate (CQ) -->
+  <div id="modal-cq" class="doc-modal-overlay">
+    <div class="doc-modal-body">
+      <button class="doc-close-btn" onclick="closeDocModal('cq')">닫기 ✖</button>
+      <div class="cert-border" style="border-color:#0f172a;">
+        <div class="cert-header" style="border-color:#0f172a;">
+          <div style="font-weight:900; font-size:18px; color:#0f172a;">NSK QUALITY ASSURANCE DIVISION</div>
+          <div class="cert-title" style="font-size:20px; color:#0f172a; margin-top:4px;">INSPECTION CERTIFICATE</div>
+          <div class="cert-subtitle">COMPLYING WITH EN 10204 3.1 / ISO 9001:2015</div>
+        </div>
+
+        <div class="cert-grid">
+          <div class="cert-box">
+            <div class="cert-label">Product Name &amp; Spec</div>
+            <div class="cert-val" style="color:#0284c7;">6204-2RS C3</div>
+          </div>
+          <div class="cert-box">
+            <div class="cert-label">Lot No. / Inspection Date</div>
+            <div class="cert-val">L-20261007-01 / 2026.09.28</div>
+          </div>
+        </div>
+
+        <table class="cert-table">
+          <thead>
+            <tr>
+              <th>Test Parameter</th>
+              <th>Standard Spec</th>
+              <th>Measured Value</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;">Inner Diameter (d)</td>
+              <td>20.000 mm (-0.008~0)</td>
+              <td style="font-weight:700;">19.995 mm</td>
+              <td style="color:#16a34a; font-weight:900;">PASS</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;">Outer Diameter (D)</td>
+              <td>47.000 mm (-0.009~0)</td>
+              <td style="font-weight:700;">46.993 mm</td>
+              <td style="color:#16a34a; font-weight:900;">PASS</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;">Radial Clearance (C3)</td>
+              <td>11 ~ 25 µm</td>
+              <td style="font-weight:700;">18 µm</td>
+              <td style="color:#16a34a; font-weight:900;">PASS</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;">Vibration &amp; Noise Level</td>
+              <td>Max 22 dB</td>
+              <td style="font-weight:700;">14.2 dB</td>
+              <td style="color:#16a34a; font-weight:900;">PASS</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="stamp-seal">
+          <div>
+            <div style="font-size:11px; font-weight:800; color:#475569;">CHIEF QUALITY INSPECTOR</div>
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-top:4px;">K. Tanaka (QA Lead Manager)</div>
+          </div>
+          <div class="official-seal" style="border-color:#1e3a8a; color:#1e3a8a;">
+            <span>NSK QA DEPT</span>
+            <span style="font-size:13px; margin:2px 0;">INSPECTED</span>
+            <span>PASSED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     function selectRole(role) {
@@ -228,7 +399,7 @@
       const badge = document.getElementById('role-badge');
 
       if (role === 'VST') {
-        badge.innerText = 'VST 관리자';
+        badge.innerText = 'VST 관리자 모드';
         badge.className = 'role-tag tag-vst';
         document.getElementById('sec-vst').classList.add('active');
       } else {
@@ -252,6 +423,20 @@
 
     function executeSearch() {
       document.getElementById('search-result').style.display = 'block';
+    }
+
+    function openDocModal(type) {
+      const modal = document.getElementById('modal-' + type);
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeDocModal(type) {
+      const modal = document.getElementById('modal-' + type);
+      if (modal) modal.style.display = 'none';
+    }
+
+    function alertDocCustoms() {
+      alert("🏛️ [대한민국 관세청 수입신고필증]\n\n• 신고번호: 110-26-488201X\n• 신고일자: 2026년 10월 05일\n• 세관/과명: 인천공항세관 수입1과\n• 수입자: (주)브이에스티 (VST Inc.)\n• 품목: 베어링 6204-2RS C3 (1,250 EA)\n• 결과: 수입 신고 수리 완료 (관세 통관 필)");
     }
   </script>
 </body>
